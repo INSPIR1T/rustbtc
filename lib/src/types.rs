@@ -1,38 +1,14 @@
+use crate::crypto::{PublicKey, Signature};
+use crate::sha256::Hash;
+use crate::util::MerkleRoot;
 use crate::U256;
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Blockchain {
     pub blocks: Vec<Block>,
-}
-pub struct Block {
-    pub header: BlockHeader,
-    pub transaction: Vec<Transaction>,
-}
-pub struct BlockHeader {
-    /// timestamp of the block
-    pub timestamp: DateTime<Utc>,
-    /// nonce used to mine the block
-    pub nonce: u64,
-    /// hash of the previous block
-    pub previous_block_hash: [u8; 32],
-    /// merkle root of the block's transactions
-    pub merkle_root: [u8; 32],
-    /// target
-    pub target: U256,
-}
-pub struct Transaction {
-    pub inputs: Vec<TransactionInput>,
-    pub outputs: Vec<TransactionOutput>,
-}
-pub struct TransactionInput {
-    pub prev_transaction_hash: [u8; 32],
-    pub signature: [u8; 64],
-}
-pub struct TransactionOutput {
-    pub value: u64,
-    pub unique_id: Uuid,
-    pub pubkey: [u8; 32],
 }
 
 impl Blockchain {
@@ -45,6 +21,12 @@ impl Blockchain {
     }
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Block {
+    pub header: BlockHeader,
+    pub transaction: Vec<Transaction>,
+}
+
 impl Block {
     pub fn new(header: BlockHeader, transaction: Vec<Transaction>) -> Self {
         Self {
@@ -53,9 +35,23 @@ impl Block {
         }
     }
 
-    pub fn hash(&self) -> ! {
-        unimplemented!()
+    pub fn hash(&self) -> Hash {
+        Hash::hash(self)
     }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct BlockHeader {
+    /// timestamp of the block
+    pub timestamp: DateTime<Utc>,
+    /// nonce used to mine the block
+    pub nonce: u64,
+    /// hash of the previous block
+    pub previous_block_hash: [u8; 32],
+    /// merkle root of the block's transactions
+    pub merkle_root: [u8; 32],
+    /// target
+    pub target: U256,
 }
 
 impl BlockHeader {
@@ -75,8 +71,33 @@ impl BlockHeader {
         }
     }
 
-    pub fn hash(&self) -> ! {
-        unimplemented!()
+    pub fn hash(&self) -> Hash {
+        Hash::hash(self)
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct Transaction {
+    pub inputs: Vec<TransactionInput>,
+    pub outputs: Vec<TransactionOutput>,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TransactionInput {
+    pub prev_transaction_hash: [u8; 32],
+    pub signature: Signature,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TransactionOutput {
+    pub value: u64,
+    pub unique_id: Uuid,
+    pub pubkey: PublicKey,
+}
+
+impl TransactionOutput {
+    pub fn hash(&self) -> Hash {
+        Hash::hash(self)
     }
 }
 
@@ -85,8 +106,7 @@ impl Transaction {
         Self { inputs, outputs }
     }
 
-    pub fn hash(&self) {
-        unimplemented!()
+    pub fn hash(&self) -> Hash {
+        Hash::hash(self)
     }
 }
-

@@ -14,3 +14,5 @@ uint = "0.9.5"
 uuid={version = "1.8.0", features = ["v4", "serde"]}
 k256 = {version = "0.13.4", features = ["serde", "pem"]}
 ecdsa = {version = "0.16.9", features = ["signing", "verifying", "serde", "pem"]}
+hex = "0.4.3"
+rand = "0.8.5"
